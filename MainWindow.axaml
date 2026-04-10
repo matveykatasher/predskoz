@@ -1,0 +1,291 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:predskoz"
+        x:Class="predskoz.MainWindow"
+        Title="Лавка волшебницы"
+        Width="1100" Height="750"
+        MinWidth="900" MinHeight="650"
+        Background="#1a1a2e">
+    
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="10">
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="#2d2d3f" CornerRadius="10" Padding="15" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="🔮 Лавка волшебницы" 
+                          FontSize="24" FontWeight="Bold" 
+                          Foreground="#FFD700" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,400" Margin="0,0,0,10">
+            <!-- Левая панель с изображением -->
+            <Border Grid.Column="0" Background="#1e1e2e" CornerRadius="10" Padding="15" Margin="0,0,10,0">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <!-- Кнопки управления -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+                        <Button Content="📁 Загрузить фото" 
+                                Command="{Binding SelectImageCommand}" 
+                                Background="#4a4a6a" 
+                                Foreground="White" 
+                                CornerRadius="5" 
+                                Padding="15,10" 
+                                Margin="0,0,10,0"
+                                FontSize="13"/>
+                        
+                        <Button Content="✂️ Выделить область" 
+                                Command="{Binding StartSelectionCommand}"
+                                IsEnabled="{Binding HasImage}"
+                                Background="#6a6a4a" 
+                                Foreground="White"
+                                CornerRadius="5" 
+                                Padding="15,10" 
+                                Margin="0,0,10,0"
+                                FontSize="13"/>
+                        
+                        <Button Content="🔄 Сбросить" 
+                                Command="{Binding ResetSelectionCommand}"
+                                Background="#6a4a4a" 
+                                Foreground="White"
+                                CornerRadius="5" 
+                                Padding="15,10" 
+                                Margin="0,0,10,0"
+                                FontSize="13"/>
+                        
+                        <Button Content="🔮 Начать гадание" 
+                                Command="{Binding AnalyzeCommand}"
+                                Background="#4a6a4a" 
+                                Foreground="White"
+                                CornerRadius="5" 
+                                Padding="15,10"
+                                IsEnabled="{Binding HasImage}"
+                                FontSize="13"/>
+                    </StackPanel>
+
+                    <!-- Контейнер изображения -->
+                    <Border Grid.Row="1" 
+                            Background="#0d0d15" 
+                            CornerRadius="10"
+                            BorderBrush="#3a3a5a"
+                            BorderThickness="1"
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center"
+                            Padding="20">
+                        
+                        <Grid Width="450" Height="450"
+                              PointerPressed="OnPointerPressed"
+                              PointerMoved="OnPointerMoved"
+                              PointerReleased="OnPointerReleased">
+                            
+                            <Image Source="{Binding CurrentImage}" 
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                            
+                            <!-- Прямоугольник выделения -->
+                            <Canvas>
+                                <Border x:Name="SelectionBorder"
+                                        BorderBrush="#FFD700"
+                                        BorderThickness="3"
+                                        CornerRadius="3"
+                                        IsVisible="{Binding IsSelecting}"
+                                        Background="#FFD70020"
+                                        Canvas.Left="{Binding SelectionX}"
+                                        Canvas.Top="{Binding SelectionY}"
+                                        Width="{Binding SelectionWidth}"
+                                        Height="{Binding SelectionHeight}"/>
+                            </Canvas>
+                            
+                            <!-- Инструкция по выделению -->
+                            <Border IsVisible="{Binding IsSelecting}"
+                                    Background="#1a1a2e80"
+                                    CornerRadius="5"
+                                    Padding="15,10"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="🎯 Выделите область ладони мышкой" 
+                                              Foreground="#FFD700"
+                                              FontSize="14"
+                                              FontWeight="Bold"
+                                              TextAlignment="Center"/>
+                                    <TextBlock Text="ESC - отмена, Enter - применить" 
+                                              Foreground="#aaaacc"
+                                              FontSize="11"
+                                              TextAlignment="Center"
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Плейсхолдер если нет изображения -->
+                    <Border Grid.Row="1" 
+                            IsVisible="{Binding !HasImage}" 
+                            Background="#1a1a2e" 
+                            CornerRadius="10"
+                            Padding="40"
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="🖐️" FontSize="72" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Загрузите фото ладони" 
+                                      FontSize="16" 
+                                      Foreground="#8888aa"
+                                      Margin="0,15,0,0"/>
+                            <TextBlock Text="Выделите область для точного анализа" 
+                                      FontSize="12" 
+                                      Foreground="#666688"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Статус -->
+                    <StackPanel Grid.Row="2" Margin="0,15,0,0" Spacing="8">
+                        <Border Background="#2a2a3e" CornerRadius="5" Padding="10,8">
+                            <TextBlock Text="{Binding StatusMessage}" 
+                                      Foreground="#aaaacc" 
+                                      TextWrapping="Wrap"
+                                      FontSize="12"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Правая панель с результатами -->
+            <Border Grid.Column="1" Background="#1e1e2e" CornerRadius="10" Padding="20">
+                <ScrollViewer>
+                    <StackPanel>
+                        <TextBlock Text="📊 АНАЛИЗ ЛИНИЙ" 
+                                  FontSize="20" 
+                                  FontWeight="Bold"
+                                  Foreground="#FFD700" 
+                                  Margin="0,0,0,20"/>
+                        
+                        <!-- Область выделения -->
+                        <Border Background="#2a2a3e" 
+                                CornerRadius="8" 
+                                Padding="15" 
+                                Margin="0,0,0,12"
+                                IsVisible="{Binding HasSelection}">
+                            <StackPanel>
+                                <TextBlock Text="📍 Область анализа" 
+                                          FontSize="14" 
+                                          FontWeight="Bold" 
+                                          Foreground="#FFD700"
+                                          Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding SelectionInfo}" 
+                                          TextWrapping="Wrap" 
+                                          FontSize="12"
+                                          Foreground="#aaaacc"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Линия жизни -->
+                        <Border Background="#2a2a3e" 
+                                CornerRadius="8" 
+                                Padding="15" 
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="❤️ Линия жизни" 
+                                          FontSize="16" 
+                                          FontWeight="Bold" 
+                                          Foreground="#ff6b6b"
+                                          Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding LifeLineAnalysis}" 
+                                          TextWrapping="Wrap" 
+                                          FontSize="13"
+                                          Foreground="#ccccdd"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Линия сердца -->
+                        <Border Background="#2a2a3e" 
+                                CornerRadius="8" 
+                                Padding="15" 
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="💖 Линия сердца" 
+                                          FontSize="16" 
+                                          FontWeight="Bold"
+                                          Foreground="#ff9f9f"
+                                          Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding HeartLineAnalysis}"
+                                          TextWrapping="Wrap" 
+                                          FontSize="13"
+                                          Foreground="#ccccdd"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Линия ума -->
+                        <Border Background="#2a2a3e" 
+                                CornerRadius="8" 
+                                Padding="15" 
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="🧠 Линия ума" 
+                                          FontSize="16" 
+                                          FontWeight="Bold"
+                                          Foreground="#9f9fff"
+                                          Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding HeadLineAnalysis}"
+                                          TextWrapping="Wrap" 
+                                          FontSize="13"
+                                          Foreground="#ccccdd"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Предсказание -->
+                        <Border Background="#3a2a4e" 
+                                CornerRadius="8" 
+                                Padding="20" 
+                                Margin="0,15,0,15">
+                            <StackPanel>
+                                <TextBlock Text="🔮 ПРЕДСКАЗАНИЕ" 
+                                          FontSize="18" 
+                                          FontWeight="Bold"
+                                          Foreground="#FFD700"
+                                          Margin="0,0,0,12"/>
+                                <TextBlock Text="{Binding CurrentPrediction}"
+                                          TextWrapping="Wrap" 
+                                          FontSize="14"
+                                          Foreground="#eeeeff"/>
+                                <TextBlock Text="{Binding ComplexityNote}"
+                                          TextWrapping="Wrap" 
+                                          FontSize="12"
+                                          Foreground="#aaaacc"
+                                          FontStyle="Italic"
+                                          Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Кнопка истории -->
+                        <Button Content="📜 История предсказаний" 
+                               Command="{Binding ShowHistoryCommand}"
+                               Background="#4a4a6a" 
+                               Foreground="White"
+                               CornerRadius="8" 
+                               Padding="15,12" 
+                               Margin="0,10,0,0"
+                               FontSize="14"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- Статус бар -->
+        <Border Grid.Row="2" 
+                Background="#2d2d3f" 
+                CornerRadius="5" 
+                Padding="15,8">
+            <TextBlock Text="{Binding StatusMessage}" 
+                      Foreground="#aaaacc" 
+                      FontSize="12"/>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,78 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:predskoz"
+        x:Class="predskoz.HistoryWindow"
+        Title="История предсказаний"
+        Width="600" Height="500"
+        Background="#1a1a2e">
+    
+    <Design.DataContext>
+        <vm:HistoryWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" 
+                   Text="📜 История предсказаний" 
+                   FontSize="20" 
+                   FontWeight="Bold"
+                   Foreground="#FFD700"
+                   Margin="0,0,0,15"/>
+        
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding HistoryItems}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#2a2a3e" 
+                                CornerRadius="8" 
+                                Padding="15" 
+                                Margin="0,0,0,10"
+                                BorderBrush="#4a4a6a"
+                                BorderThickness="1">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Image Grid.Column="0" 
+                                       Source="{Binding ThumbnailPath}"
+                                       Width="80" Height="60"
+                                       Stretch="UniformToFill"
+                                       Margin="0,0,15,0"/>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Prediction}"
+                                              TextWrapping="Wrap"
+                                              Foreground="#eeeeff"
+                                              FontSize="13"
+                                              MaxWidth="350"/>
+                                    <TextBlock Text="{Binding FormattedDate}"
+                                              Foreground="#8888aa"
+                                              FontSize="11"
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <Button Grid.Row="2" 
+                Content="🗑️ Очистить историю" 
+                Command="{Binding ClearHistoryCommand}"
+                Background="#6a4a4a" 
+                Foreground="White"
+                CornerRadius="8" 
+                Padding="15,10" 
+                Margin="0,15,0,0"
+                HorizontalAlignment="Right">
+            <Button.Styles>
+                <Style Selector="Button:pointerover">
+                    <Setter Property="Background" Value="#7a5a5a"/>
+                </Style>
+            </Button.Styles>
+        </Button>
+    </Grid>
+</Window>
