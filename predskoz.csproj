@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindings>true</AvaloniaUseCompiledBindings>
+    <NoWarn>NU1902;NU1903</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.7" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.7" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.7" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.7" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.7" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+</Project>
